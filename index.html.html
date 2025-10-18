@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>1212 Menu System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --accent: #ffd166;
+            --dark-bg: #1a1a2e;
+            --dark-card: #2d3047;
+            --dark-text: #f8f9fa;
+            --light-bg: #f8f9fa;
+            --light-card: #ffffff;
+            --light-text: #1a1a2e;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .dark-theme {
+            --bg-color: var(--dark-bg);
+            --card-bg: var(--dark-card);
+            --text-color: var(--dark-text);
+            --border-color: #444;
+        }
+        
+        .light-theme {
+            --bg-color: var(--light-bg);
+            --card-bg: var(--light-card);
+            --text-color: var(--light-text);
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-toggle {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 2;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+        
+        .menu-toggle:hover, .menu-toggle:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cover-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 15px;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .liquid-border {
+            height: 5px;
+            background: linear-gradient(90deg,
+                var(--primary) 0%,
+                var(--secondary) 25%,
+                var(--accent) 50%,
+                var(--secondary) 75%,
+                var(--primary) 100%);
+            background-size: 200% 100%;
+            animation: liquidFlow 3s infinite linear;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        @keyframes liquidFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: var(--transition);
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .sidebar.open {
+            right: 0;
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.open {
+            display: block;
+            opacity: 1;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+        
+        .sidebar-option {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+            background: var(--bg-color);
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .sidebar-option:hover, .sidebar-option:active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .sidebar-option i {
+            font-size: 20px;
+            color: var(--primary);
+        }
+        
+        .sidebar-option:hover i, .sidebar-option:active i {
+            color: white;
+        }
+        
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .rating-modal, .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+            padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .rating-modal.show, .login-modal.show {
+            opacity: 1;
+        }
+        
+        .rating-content, .login-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        .rating-modal.show .rating-content, 
+        .login-modal.show .login-content {
+            transform: translateY(0);
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            direction: ltr;
+        }
+        
+        .star {
+            font-size: 30px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+            margin: 0 5px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .star:hover, .star.active, .star:active {
+            color: #ffc107;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: var(--transition);
+            max-width: calc(100% - 40px);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn:hover, .btn:active {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+            min-height: 36px;
+        }
+        
+        /* تحسينات عرض القائمة الرئيسية */
+        .menu-content {
+            padding: 20px;
+        }
+        
+        .categories-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .category-card:active {
+            transform: scale(0.98);
+        }
+        
+        .category-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .category-icon {
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .category-card.active .category-icon {
+            transform: rotate(180deg);
+        }
+        
+        .category-image {
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+        }
+        
+        .category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .items-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .category-card.active .items-container {
+            max-height: 1000px;
+        }
+        
+        .menu-item {
+            padding: 15px 20px;
+            border-bottom: 1px dashed var(--border-color);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+            animation: fadeInUp 0.5s forwards;
+            animation-delay: calc(var(--delay, 0) * 0.1s);
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .item-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .no-items {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--dark-bg);
+            color: white;
+            margin-top: 30px;
+        }
+        
+        /* إدارة القائمة */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 1100;
+            overflow-y: auto;
+            padding: 0;
+            -webkit-overflow-scrolling: touch;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: var(--transition);
+        }
+        
+        .admin-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+        }
+        
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, transparent 20%, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 30%, transparent 30%, transparent);
+            background-size: 10px 10px;
+            animation: liquidMove 15s infinite linear;
+            opacity: 0.5;
+        }
+        
+        @keyframes liquidMove {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .admin-header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            margin: 20px auto;
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: white;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tab.active {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: var(--bg-color);
+            color: var(--text-color);
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+            outline: none;
+        }
+        
+        .image-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .image-upload:hover, .image-upload:active {
+            border-color: var(--primary);
+        }
+        
+        .image-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px auto;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .preview-container {
+            background: var(--bg-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .category-card-admin, .admin-menu-item, .review-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .category-header, .item-header, .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .category-actions, .item-actions, .review-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .hidden-item {
+            opacity: 0.6;
+            background-color: var(--bg-color);
+        }
+        
+        .menu-items-container {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .price-editor {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .price-input {
+            width: 100px;
+            padding: 5px 10px;
+        }
+        
+        .review-stars {
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        
+        .review-comment {
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .admin-footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--dark-bg);
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .back-to-menu {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+        
+        .back-to-menu:hover, .back-to-menu:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .category-title {
+                font-size: 1.3rem;
+            }
+            
+            .menu-content {
+                padding: 15px;
+            }
+            
+            .category-actions, .item-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                border-radius: 10px;
+            }
+            
+            .tab {
+                border-radius: 0;
+            }
+            
+            .tab:first-child {
+                border-radius: 10px 10px 0 0;
+            }
+            
+            .tab:last-child {
+                border-radius: 0 0 10px 10px;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .rating-content, .login-content {
+                padding: 20px;
+            }
+            
+            .sidebar {
+                width: 85%;
+                right: -85%;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .category-title {
+                font-size: 1.1rem;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .tab-content {
+                padding: 15px;
+            }
+            
+            .rating-content, .login-content {
+                padding: 15px;
+            }
+            
+            .menu-toggle, .back-to-menu {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+            
+            .notification {
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .category-header {
+                padding: 15px;
+            }
+        }
+        
+        /* تحسينات للهواتف */
+        @media (hover: none) and (pointer: coarse) {
+            .sidebar-option:hover, .btn:hover, .menu-toggle:hover, .back-to-menu:hover, .star:hover {
+                transform: none;
+            }
+            
+            .sidebar-option:active, .btn:active, .menu-toggle:active, .back-to-menu:active, .star:active {
+                transform: scale(0.95);
+            }
+            
+            .image-upload:hover {
+                border-color: var(--border-color);
+            }
+            
+            .image-upload:active {
+                border-color: var(--primary);
+            }
+            
+            .category-card:hover {
+                transform: none;
+            }
+            
+            .category-card:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* منع التكبير على حقول الإدخال في iOS */
+        @supports (-webkit-touch-callout: none) {
+            input, textarea, select {
+                font-size: 16px; /* منع التكبير التلقائي في iOS */
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- واجهة القائمة الرئيسية -->
+    <div class="container" id="mainMenu">
+        <header>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img id="coverImage" class="cover-image" src="" alt="Cover" style="display: none;">
+            <div class="header-content">
+                <div class="logo" id="restaurantLogo">
+                    <span>الشعار</span>
+                </div>
+                <h1 id="restaurantName">اسم المطعم</h1>
+                <p id="restaurantDescription">وصف المطعم</p>
+            </div>
+            <div class="liquid-border"></div>
+        </header>
+        
+        <div class="menu-content" id="menuContent">
+            <div class="categories-container" id="categoriesContainer">
+                <p class="no-items">جاري تحميل القائمة...</p>
+            </div>
+        </div>
+        
+        <!-- اللوحة الجانبية -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>خيارات</h3>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-option" id="rateServiceOption">
+                <i class="fas fa-star"></i>
+                <span>قم بتقييم الخدمة</span>
+            </div>
+            
+            <div class="sidebar-option" id="adminOption">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </div>
+            
+            <div class="sidebar-option">
+                <i class="fas fa-moon"></i>
+                <span>تبديل الثيم</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- نافذة تقييم الخدمة -->
+        <div class="rating-modal" id="ratingModal">
+            <div class="rating-content">
+                <h3>قيم خدمتنا</h3>
+                
+                <div class="form-group">
+                    <label for="customerName">اسمك</label>
+                    <input type="text" id="customerName" placeholder="أدخل اسمك">
+                </div>
+                
+                <div class="form-group">
+                    <label>التقييم</label>
+                    <div class="stars">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="ratingValue" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reviewComment">تعليق (اختياري)</label>
+                    <textarea id="reviewComment" rows="3" placeholder="أدخل تعليقك هنا"></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" id="submitRatingBtn">إرسال التقييم</button>
+                    <button class="btn btn-secondary" id="cancelRatingBtn">إلغاء</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- نافذة تسجيل الدخول -->
+        <div class="login-modal" id="loginModal">
+            <div class="login-content">
+                <h3>تسجيل الدخول للإعدادات</h3>
+                
+                <div class="form-group">
+                    <label for="username">اسم المستخدم</label>
+                    <input type="text" id="username" placeholder="أدخل اسم المستخدم">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <input type="password" id="password" placeholder="أدخل كلمة المرور">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" id="loginBtn">تسجيل الدخول</button>
+                    <button class="btn btn-secondary" id="cancelLoginBtn">إلغاء</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- إشعار -->
+        <div class="notification" id="notification"></div>
+        
+        <div class="footer">
+            <p>تم التطوير بواسطة <strong>Laith Sabbah</strong></p>
+            <p>جميع الحقوق محفوظة © 2023</p>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <button class="back-to-menu" id="backToMenu">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="admin-header-content">
+                <h1>1212 Menu System - الإدارة</h1>
+            </div>
+            <div class="liquid-border"></div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="info">المعلومات الأساسية</div>
+            <div class="tab" data-tab="menu">إدارة القائمة</div>
+            <div class="tab" data-tab="reviews">التقييمات</div>
+            <div class="tab" data-tab="security">الأمان</div>
+        </div>
+        
+        <div class="tab-content active" id="info">
+            <h2>المعلومات الأساسية للمطعم</h2>
+            <p>قم بتعديل المعلومات الأساسية للمطعم والتي ستظهر في القائمة</p>
+            
+            <div class="form-group">
+                <label for="adminRestaurantName">اسم المطعم</label>
+                <input type="text" id="adminRestaurantName" placeholder="أدخل اسم المطعم">
+            </div>
+            
+            <div class="form-group">
+                <label for="adminRestaurantDescription">وصف المطعم</label>
+                <textarea id="adminRestaurantDescription" rows="3" placeholder="أدخل وصفاً للمطعم"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>شعار المطعم</label>
+                <div class="image-upload" id="adminLogoUpload">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #ccc; margin-bottom: 10px;"></i>
+                    <p>انقر لتحميل شعار المطعم</p>
+                    <input type="file" id="adminLogoInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="image-preview" id="adminLogoPreview">
+                    <span>لم يتم تحميل صورة بعد</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>صورة الغلاف</label>
+                <div class="image-upload" id="adminCoverUpload">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #ccc; margin-bottom: 10px;"></i>
+                    <p>انقر لتحميل صورة الغلاف</p>
+                    <input type="file" id="adminCoverInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="image-preview" id="adminCoverPreview">
+                    <span>لم يتم تحميل صورة بعد</span>
+                </div>
+            </div>
+            
+            <button class="btn" id="saveInfoBtn">حفظ المعلومات</button>
+        </div>
+        
+        <div class="tab-content" id="menu">
+            <h2>إدارة قائمة الطعام</h2>
+            <p>قم بإضافة وتعديل الأصناف في قائمة الطعام</p>
+            
+            <div class="preview-container">
+                <h3>إضافة فئة جديدة</h3>
+                
+                <div class="form-group">
+                    <label for="categoryName">اسم الفئة</label>
+                    <input type="text" id="categoryName" placeholder="أدخل اسم الفئة">
+                </div>
+                
+                <div class="form-group">
+                    <label>صورة الفئة</label>
+                    <div class="image-upload" id="categoryImageUpload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #ccc; margin-bottom: 10px;"></i>
+                        <p>انقر لتحميل صورة الفئة</p>
+                        <input type="file" id="categoryImageInput" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="image-preview" id="categoryImagePreview">
+                        <span>لم يتم تحميل صورة بعد</span>
+                    </div>
+                </div>
+                
+                <button class="btn" id="addCategoryBtn">إضافة فئة</button>
+            </div>
+            
+            <div class="preview-container">
+                <h3>إضافة صنف جديد</h3>
+                
+                <div class="form-group">
+                    <label for="itemCategory">الفئة</label>
+                    <select id="itemCategory">
+                        <option value="">اختر الفئة</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemName">اسم الصنف</label>
+                    <input type="text" id="itemName" placeholder="أدخل اسم الصنف">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemDescription">وصف الصنف</label>
+                    <textarea id="itemDescription" rows="2" placeholder="أدخل وصفاً للصنف"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemPrice">السعر</label>
+                    <input type="number" id="itemPrice" placeholder="أدخل السعر">
+                </div>
+                
+                <button class="btn" id="addItemBtn">إضافة صنف</button>
+            </div>
+            
+            <div class="preview-container">
+                <h3>الفئات والأصناف</h3>
+                <div id="categoriesAdminContainer">
+                    <p style="text-align: center; padding: 20px; color: #888;">لم يتم إضافة أي فئات بعد</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="reviews">
+            <h2>تقييمات الزبائن</h2>
+            <p>عرض تقييمات الزبائن للخدمة</p>
+            
+            <div class="preview-container">
+                <h3>قائمة التقييمات</h3>
+                <div id="reviewsContainer">
+                    <p style="text-align: center; padding: 20px; color: #888;">لا توجد تقييمات بعد</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="security">
+            <h2>إعدادات الأمان</h2>
+            <p>تغيير اسم المستخدم وكلمة المرور</p>
+            
+            <div class="preview-container">
+                <h3>تغيير بيانات الدخول</h3>
+                
+                <div class="form-group">
+                    <label for="newUsername">اسم المستخدم الجديد</label>
+                    <input type="text" id="newUsername" placeholder="أدخل اسم المستخدم الجديد">
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentPassword">كلمة المرور الحالية</label>
+                    <input type="password" id="currentPassword" placeholder="أدخل كلمة المرور الحالية">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newPassword">كلمة المرور الجديدة</label>
+                    <input type="password" id="newPassword" placeholder="أدخل كلمة المرور الجديدة">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">تأكيد كلمة المرور الجديدة</label>
+                    <input type="password" id="confirmPassword" placeholder="أدخل كلمة المرور الجديدة مرة أخرى">
+                </div>
+                
+                <button class="btn" id="changeCredentialsBtn">تغيير بيانات الدخول</button>
+            </div>
+        </div>
+        
+        <div class="admin-footer">
+            <p>تم التطوير بواسطة <strong>Laith Sabbah</strong></p>
+            <p>جميع الحقوق محفوظة © 2023</p>
+        </div>
+    </div>
+
+    <script>
+        // بيانات التطبيق
+        let restaurantInfo = {
+            name: "مطعمنا الرائع",
+            description: "نقدم أشهى المأكولات بأجود المكونات",
+            logo: "",
+            cover: ""
+        };
+        
+        let categories = [
+            {
+                id: 1,
+                name: "المقبلات",
+                image: "",
+                hidden: false
+            },
+            {
+                id: 2,
+                name: "المشروبات",
+                image: "",
+                hidden: false
+            }
+        ];
+        
+        let menuItems = [
+            {
+                id: 1,
+                categoryId: 1,
+                name: "سلطة يونانية",
+                description: "طماطم، خيار، جبنة فيتا، زيتون",
+                price: 25,
+                hidden: false
+            },
+            {
+                id: 2,
+                categoryId: 1,
+                name: "حمص بالطحينة",
+                description: "حمص، طحينة، زيت زيتون، ليمون",
+                price: 18,
+                hidden: false
+            },
+            {
+                id: 3,
+                categoryId: 2,
+                name: "عصير برتقال طازج",
+                description: "عصير برتقال طازج 100%",
+                price: 12,
+                hidden: false
+            },
+            {
+                id: 4,
+                categoryId: 2,
+                name: "قهوة عربية",
+                description: "قهوة عربية تقليدية",
+                price: 10,
+                hidden: false
+            }
+        ];
+        
+        let reviews = [];
+        let currentTheme = 'dark';
+        let activeCategoryId = null;
+        
+        // بيانات تسجيل الدخول
+        let loginCredentials = {
+            username: "admin",
+            password: "admin123"
+        };
+        
+        // تحميل بيانات تسجيل الدخول المحفوظة
+        const savedCredentials = localStorage.getItem('loginCredentials');
+        if (savedCredentials) {
+            loginCredentials = JSON.parse(savedCredentials);
+        }
+        
+        // تهيئة التطبيق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('بدء تهيئة التطبيق...');
+            
+            // تحميل البيانات المحفوظة
+            loadSavedData();
+            
+            // إعداد جميع الأحداث
+            setupEventListeners();
+            
+            // تحديث واجهة القائمة الرئيسية
+            updateMainMenu();
+            
+            // تعيين الثيم الافتراضي
+            document.getElementById('themeToggle').checked = true;
+            
+            console.log('تم تهيئة التطبيق بنجاح');
+        });
+        
+        // إعداد جميع الأحداث
+        function setupEventListeners() {
+            console.log('إعداد الأحداث...');
+            
+            // إدارة القائمة الجانبية
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const closeSidebar = document.getElementById('closeSidebar');
+            
+            menuToggle.addEventListener('click', openSidebar);
+            closeSidebar.addEventListener('click', closeSidebarFunc);
+            sidebarOverlay.addEventListener('click', closeSidebarFunc);
+            
+            // فتح نافذة التقييم
+            document.getElementById('rateServiceOption').addEventListener('click', openRatingModal);
+            
+            // إغلاق نافذة التقييم
+            document.getElementById('cancelRatingBtn').addEventListener('click', closeRatingModal);
+            
+            // فتح نافذة تسجيل الدخول للإعدادات
+            document.getElementById('adminOption').addEventListener('click', openLoginModal);
+            
+            // إغلاق نافذة تسجيل الدخول
+            document.getElementById('cancelLoginBtn').addEventListener('click', closeLoginModal);
+            
+            // تسجيل الدخول
+            document.getElementById('loginBtn').addEventListener('click', login);
+            
+            // العودة إلى القائمة الرئيسية
+            document.getElementById('backToMenu').addEventListener('click', backToMainMenu);
+            
+            // تبديل الثيم
+            document.getElementById('themeToggle').addEventListener('change', toggleTheme);
+            
+            // إدارة النجوم في التقييم
+            setupStarRating();
+            
+            // إرسال التقييم
+            document.getElementById('submitRatingBtn').addEventListener('click', submitRating);
+            
+            // إدارة تحميل الصور في لوحة التحكم
+            setupImageUploads();
+            
+            // إدارة التبويبات في لوحة التحكم
+            setupTabs();
+            
+            // حفظ المعلومات الأساسية
+            document.getElementById('saveInfoBtn').addEventListener('click', saveRestaurantInfoHandler);
+            
+            // إضافة فئة جديدة
+            document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+            
+            // إضافة صنف جديد
+            document.getElementById('addItemBtn').addEventListener('click', addItem);
+            
+            // تغيير بيانات الدخول
+            document.getElementById('changeCredentialsBtn').addEventListener('click', changeCredentials);
+            
+            // إضافة أحداث للحقول لحفظ البيانات تلقائياً
+            document.getElementById('adminRestaurantName').addEventListener('input', autoSaveRestaurantInfo);
+            document.getElementById('adminRestaurantDescription').addEventListener('input', autoSaveRestaurantInfo);
+            
+            console.log('تم إعداد جميع الأحداث بنجاح');
+        }
+        
+        // وظائف إدارة الواجهة
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('open');
+        }
+        
+        function closeSidebarFunc() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
+        }
+        
+        function openRatingModal() {
+            const modal = document.getElementById('ratingModal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+            closeSidebarFunc();
+        }
+        
+        function closeRatingModal() {
+            const modal = document.getElementById('ratingModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        function openLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+            closeSidebarFunc();
+        }
+        
+        function closeLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === loginCredentials.username && password === loginCredentials.password) {
+                closeLoginModal();
+                document.getElementById('mainMenu').style.display = 'none';
+                
+                const adminPanel = document.getElementById('adminPanel');
+                adminPanel.style.display = 'block';
+                setTimeout(() => {
+                    adminPanel.classList.add('show');
+                }, 10);
+                
+                loadAdminData();
+                showNotification('تم تسجيل الدخول بنجاح');
+            } else {
+                showNotification('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+            }
+        }
+        
+        function backToMainMenu() {
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.classList.remove('show');
+            
+            setTimeout(() => {
+                adminPanel.style.display = 'none';
+                document.getElementById('mainMenu').style.display = 'block';
+                updateMainMenu();
+            }, 300);
+        }
+        
+        function toggleTheme() {
+            if (this.checked) {
+                document.body.classList.remove('light-theme');
+                document.body.classList.add('dark-theme');
+                currentTheme = 'dark';
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+                currentTheme = 'light';
+            }
+            saveTheme();
+        }
+        
+        function setupStarRating() {
+            const stars = document.querySelectorAll('.star');
+            const ratingValue = document.getElementById('ratingValue');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    ratingValue.value = value;
+                    
+                    stars.forEach(s => {
+                        const sValue = parseInt(s.getAttribute('data-value'));
+                        if (sValue <= value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+                
+                // دعم اللمس للهواتف
+                star.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    const value = parseInt(this.getAttribute('data-value'));
+                    ratingValue.value = value;
+                    
+                    stars.forEach(s => {
+                        const sValue = parseInt(s.getAttribute('data-value'));
+                        if (sValue <= value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+        
+        function submitRating() {
+            const customerName = document.getElementById('customerName').value;
+            const rating = parseInt(document.getElementById('ratingValue').value);
+            const comment = document.getElementById('reviewComment').value;
+            
+            if (!customerName || rating === 0) {
+                showNotification('يرجى إدخال اسمك وتقييم الخدمة', 'error');
+                return;
+            }
+            
+            const newReview = {
+                id: Date.now(),
+                customerName: customerName,
+                rating: rating,
+                comment: comment,
+                date: new Date().toLocaleDateString()
+            };
+            
+            reviews.push(newReview);
+            saveReviews();
+            
+            // إعادة تعيين الحقول
+            document.getElementById('customerName').value = '';
+            document.getElementById('reviewComment').value = '';
+            document.getElementById('ratingValue').value = 0;
+            document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+            
+            // إغلاق النافذة
+            closeRatingModal();
+            
+            // عرض رسالة نجاح
+            showNotification('شكراً لتقييمك خدمتنا');
+        }
+        
+        function setupImageUploads() {
+            const uploadAreas = document.querySelectorAll('.image-upload');
+            
+            uploadAreas.forEach(area => {
+                const input = area.querySelector('input[type="file"]');
+                let preview;
+                
+                if (area.id === 'adminLogoUpload') {
+                    preview = document.getElementById('adminLogoPreview');
+                } else if (area.id === 'adminCoverUpload') {
+                    preview = document.getElementById('adminCoverPreview');
+                } else if (area.id === 'categoryImageUpload') {
+                    preview = document.getElementById('categoryImagePreview');
+                }
+                
+                area.addEventListener('click', function() {
+                    input.click();
+                });
+                
+                // دعم اللمس للهواتف
+                area.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    input.click();
+                });
+                
+                input.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                            
+                            // حفظ الصورة في البيانات المناسبة
+                            if (area.id === 'adminLogoUpload') {
+                                restaurantInfo.logo = e.target.result;
+                                saveRestaurantInfo();
+                                updateMainMenu();
+                            } else if (area.id === 'adminCoverUpload') {
+                                restaurantInfo.cover = e.target.result;
+                                saveRestaurantInfo();
+                                updateMainMenu();
+                            }
+                        }
+                        
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            });
+        }
+        
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // إزالة النشاط من جميع التبويبات والمحتويات
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    // إضافة النشاط للتبويب والمحتوى المحدد
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // إذا كان تبويب التقييمات، قم بتحديث التقييمات
+                    if (tabId === 'reviews') {
+                        renderReviews();
+                    }
+                });
+                
+                // دعم اللمس للهواتف
+                tab.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    if (tabId === 'reviews') {
+                        renderReviews();
+                    }
+                });
+            });
+        }
+        
+        function saveRestaurantInfoHandler() {
+            restaurantInfo.name = document.getElementById('adminRestaurantName').value;
+            restaurantInfo.description = document.getElementById('adminRestaurantDescription').value;
+            
+            saveRestaurantInfo();
+            updateMainMenu();
+            showNotification('تم حفظ المعلومات بنجاح');
+        }
+        
+        function autoSaveRestaurantInfo() {
+            restaurantInfo.name = document.getElementById('adminRestaurantName').value;
+            restaurantInfo.description = document.getElementById('adminRestaurantDescription').value;
+            saveRestaurantInfo();
+            updateMainMenu();
+        }
+        
+        function addCategory() {
+            const categoryName = document.getElementById('categoryName').value;
+            const categoryImage = document.getElementById('categoryImagePreview').querySelector('img');
+            
+            if (!categoryName) {
+                showNotification('يرجى إدخال اسم الفئة', 'error');
+                return;
+            }
+            
+            const newCategory = {
+                id: Date.now(),
+                name: categoryName,
+                image: categoryImage ? categoryImage.src : '',
+                hidden: false
+            };
+            
+            categories.push(newCategory);
+            saveCategories();
+            
+            // إعادة تعيين الحقول
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryImagePreview').innerHTML = '<span>لم يتم تحميل صورة بعد</span>';
+            
+            // تحديث قائمة الفئات في واجهة إضافة الأصناف
+            updateCategorySelect();
+            
+            // تحديث عرض الفئات
+            renderCategoriesAdmin();
+            
+            // تحديث القائمة الرئيسية
+            updateMainMenu();
+            
+            // عرض رسالة نجاح
+            showNotification('تم إضافة الفئة بنجاح');
+        }
+        
+        function addItem() {
+            const categoryId = document.getElementById('itemCategory').value;
+            const itemName = document.getElementById('itemName').value;
+            const itemDescription = document.getElementById('itemDescription').value;
+            const itemPrice = document.getElementById('itemPrice').value;
+            
+            if (!categoryId || !itemName || !itemPrice) {
+                showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            const newItem = {
+                id: Date.now(),
+                categoryId: parseInt(categoryId),
+                name: itemName,
+                description: itemDescription,
+                price: parseFloat(itemPrice),
+                hidden: false
+            };
+            
+            menuItems.push(newItem);
+            saveMenuItems();
+            
+            // إعادة تعيين الحقول
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemDescription').value = '';
+            document.getElementById('itemPrice').value = '';
+            
+            // تحديث عرض الفئات والأصناف
+            renderCategoriesAdmin();
+            
+            // تحديث القائمة الرئيسية
+            updateMainMenu();
+            
+            // عرض رسالة نجاح
+            showNotification('تم إضافة الصنف بنجاح');
+        }
+        
+        function changeCredentials() {
+            const newUsername = document.getElementById('newUsername').value;
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword) {
+                showNotification('يرجى إدخال كلمة المرور الحالية', 'error');
+                return;
+            }
+            
+            if (currentPassword !== loginCredentials.password) {
+                showNotification('كلمة المرور الحالية غير صحيحة', 'error');
+                return;
+            }
+            
+            if (newPassword && newPassword !== confirmPassword) {
+                showNotification('كلمة المرور الجديدة غير متطابقة', 'error');
+                return;
+            }
+            
+            if (newUsername) {
+                loginCredentials.username = newUsername;
+            }
+            
+            if (newPassword) {
+                loginCredentials.password = newPassword;
+            }
+            
+            localStorage.setItem('loginCredentials', JSON.stringify(loginCredentials));
+            
+            // إعادة تعيين الحقول
+            document.getElementById('newUsername').value = '';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            // عرض رسالة نجاح
+            showNotification('تم تغيير بيانات الدخول بنجاح');
+        }
+        
+        // وظائف مساعدة
+        function updateCategorySelect() {
+            const categorySelect = document.getElementById('itemCategory');
+            categorySelect.innerHTML = '<option value="">اختر الفئة</option>';
+            
+            categories.forEach(category => {
+                if (!category.hidden) {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                }
+            });
+        }
+        
+        function renderCategoriesAdmin() {
+            const categoriesContainer = document.getElementById('categoriesAdminContainer');
+            
+            if (categories.length === 0) {
+                categoriesContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">لم يتم إضافة أي فئات بعد</p>';
+                return;
+            }
+            
+            categoriesContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = `category-card-admin ${category.hidden ? 'hidden-item' : ''}`;
+                
+                const categoryHeader = document.createElement('div');
+                categoryHeader.className = 'category-header';
+                
+                const categoryTitle = document.createElement('h4');
+                categoryTitle.textContent = category.name;
+                
+                const categoryActions = document.createElement('div');
+                categoryActions.className = 'category-actions';
+                
+                const toggleButton = document.createElement('button');
+                toggleButton.className = `btn btn-sm ${category.hidden ? 'btn-success' : 'btn-warning'}`;
+                toggleButton.innerHTML = category.hidden ? '<i class="fas fa-eye"></i> إظهار' : '<i class="fas fa-eye-slash"></i> إخفاء';
+                
+                toggleButton.addEventListener('click', function() {
+                    category.hidden = !category.hidden;
+                    renderCategoriesAdmin();
+                    saveCategories();
+                    updateMainMenu();
+                });
+                
+                const editButton = document.createElement('button');
+                editButton.className = 'btn btn-secondary btn-sm';
+                editButton.innerHTML = '<i class="fas fa-edit"></i> تعديل';
+                
+                editButton.addEventListener('click', function() {
+                    editCategory(category);
+                });
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn btn-danger btn-sm';
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i> حذف';
+                
+                deleteButton.addEventListener('click', function() {
+                    if (confirm('هل أنت متأكد من حذف هذه الفئة؟')) {
+                        // حذف الفئة وجميع أصنافها
+                        categories = categories.filter(c => c.id !== category.id);
+                        menuItems = menuItems.filter(item => item.categoryId !== category.id);
+                        renderCategoriesAdmin();
+                        updateCategorySelect();
+                        saveCategories();
+                        saveMenuItems();
+                        updateMainMenu();
+                        
+                        // عرض رسالة نجاح
+                        showNotification('تم حذف الفئة بنجاح');
+                    }
+                });
+                
+                categoryActions.appendChild(toggleButton);
+                categoryActions.appendChild(editButton);
+                categoryActions.appendChild(deleteButton);
+                
+                categoryHeader.appendChild(categoryTitle);
+                categoryHeader.appendChild(categoryActions);
+                
+                categoryCard.appendChild(categoryHeader);
+                
+                // عرض صورة الفئة إن وجدت
+                if (category.image) {
+                    const categoryImageDiv = document.createElement('div');
+                    categoryImageDiv.className = 'category-image';
+                    categoryImageDiv.innerHTML = `<img src="${category.image}" alt="${category.name}">`;
+                    categoryCard.appendChild(categoryImageDiv);
+                }
+                
+                // عرض أصناف هذه الفئة
+                const categoryItems = menuItems.filter(item => item.categoryId === category.id);
+                
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'menu-items-container';
+                
+                if (categoryItems.length === 0) {
+                    itemsContainer.innerHTML = `<p style="text-align: center; color: #888;">لا توجد أصناف في هذه الفئة</p>`;
+                } else {
+                    categoryItems.forEach(item => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = `admin-menu-item ${item.hidden ? 'hidden-item' : ''}`;
+                        
+                        const itemHeader = document.createElement('div');
+                        itemHeader.className = 'item-header';
+                        
+                        const itemName = document.createElement('h5');
+                        itemName.textContent = item.name;
+                        
+                        const itemActions = document.createElement('div');
+                        itemActions.className = 'item-actions';
+                        
+                        const itemToggleButton = document.createElement('button');
+                        itemToggleButton.className = `btn btn-sm ${item.hidden ? 'btn-success' : 'btn-warning'}`;
+                        itemToggleButton.innerHTML = item.hidden ? '<i class="fas fa-eye"></i> إظهار' : '<i class="fas fa-eye-slash"></i> إخفاء';
+                        
+                        itemToggleButton.addEventListener('click', function() {
+                            item.hidden = !item.hidden;
+                            renderCategoriesAdmin();
+                            saveMenuItems();
+                            updateMainMenu();
+                        });
+                        
+                        const editPriceButton = document.createElement('button');
+                        editPriceButton.className = 'btn btn-secondary btn-sm';
+                        editPriceButton.innerHTML = '<i class="fas fa-edit"></i> تعديل السعر';
+                        
+                        editPriceButton.addEventListener('click', function() {
+                            const newPrice = prompt('أدخل السعر الجديد:', item.price);
+                            
+                            if (newPrice !== null && !isNaN(parseFloat(newPrice))) {
+                                item.price = parseFloat(newPrice);
+                                renderCategoriesAdmin();
+                                saveMenuItems();
+                                updateMainMenu();
+                            }
+                        });
+                        
+                        const itemDeleteButton = document.createElement('button');
+                        itemDeleteButton.className = 'btn btn-danger btn-sm';
+                        itemDeleteButton.innerHTML = '<i class="fas fa-trash"></i> حذف';
+                        
+                        itemDeleteButton.addEventListener('click', function() {
+                            if (confirm('هل أنت متأكد من حذف هذا الصنف؟')) {
+                                menuItems = menuItems.filter(i => i.id !== item.id);
+                                renderCategoriesAdmin();
+                                saveMenuItems();
+                                updateMainMenu();
+                                
+                                // عرض رسالة نجاح
+                                showNotification('تم حذف الصنف بنجاح');
+                            }
+                        });
+                        
+                        itemActions.appendChild(itemToggleButton);
+                        itemActions.appendChild(editPriceButton);
+                        itemActions.appendChild(itemDeleteButton);
+                        
+                        itemHeader.appendChild(itemName);
+                        itemHeader.appendChild(itemActions);
+                        
+                        const itemDescription = document.createElement('p');
+                        itemDescription.textContent = item.description;
+                        itemDescription.style.marginBottom = '10px';
+                        itemDescription.style.color = '#666';
+                        
+                        const itemPrice = document.createElement('p');
+                        itemPrice.textContent = `${item.price} ₪`;
+                        itemPrice.style.fontWeight = 'bold';
+                        itemPrice.style.color = 'var(--primary)';
+                        
+                        itemElement.appendChild(itemHeader);
+                        itemElement.appendChild(itemDescription);
+                        itemElement.appendChild(itemPrice);
+                        
+                        itemsContainer.appendChild(itemElement);
+                    });
+                }
+                
+                categoryCard.appendChild(itemsContainer);
+                categoriesContainer.appendChild(categoryCard);
+            });
+        }
+        
+        function editCategory(category) {
+            const newName = prompt('أدخل الاسم الجديد للفئة:', category.name);
+            
+            if (newName !== null && newName.trim() !== '') {
+                category.name = newName.trim();
+                renderCategoriesAdmin();
+                updateCategorySelect();
+                saveCategories();
+                updateMainMenu();
+                
+                showNotification('تم تعديل الفئة بنجاح');
+            }
+        }
+        
+        function renderReviews() {
+            const reviewsContainer = document.getElementById('reviewsContainer');
+            
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #888;">لا توجد تقييمات بعد</p>';
+                return;
+            }
+            
+            reviewsContainer.innerHTML = '';
+            
+            reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                
+                const reviewHeader = document.createElement('div');
+                reviewHeader.className = 'review-header';
+                
+                const customerName = document.createElement('h4');
+                customerName.textContent = review.customerName;
+                
+                const reviewDate = document.createElement('span');
+                reviewDate.textContent = review.date;
+                reviewDate.style.color = '#888';
+                
+                reviewHeader.appendChild(customerName);
+                reviewHeader.appendChild(reviewDate);
+                
+                const starsDiv = document.createElement('div');
+                starsDiv.className = 'review-stars';
+                
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.createElement('span');
+                    star.innerHTML = '★';
+                    star.style.color = i <= review.rating ? '#ffc107' : '#ddd';
+                    starsDiv.appendChild(star);
+                }
+                
+                reviewCard.appendChild(reviewHeader);
+                reviewCard.appendChild(starsDiv);
+                
+                if (review.comment) {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'review-comment';
+                    commentDiv.textContent = review.comment;
+                    reviewCard.appendChild(commentDiv);
+                }
+                
+                reviewsContainer.appendChild(reviewCard);
+            });
+        }
+        
+        // وظائف حفظ البيانات
+        function saveRestaurantInfo() {
+            try {
+                localStorage.setItem('restaurantInfo', JSON.stringify(restaurantInfo));
+                console.log('تم حفظ معلومات المطعم');
+            } catch (error) {
+                console.error('خطأ في حفظ معلومات المطعم:', error);
+            }
+        }
+        
+        function saveCategories() {
+            try {
+                localStorage.setItem('menuCategories', JSON.stringify(categories));
+                console.log('تم حفظ الفئات');
+            } catch (error) {
+                console.error('خطأ في حفظ الفئات:', error);
+            }
+        }
+        
+        function saveMenuItems() {
+            try {
+                localStorage.setItem('menuItems', JSON.stringify(menuItems));
+                console.log('تم حفظ الأصناف');
+            } catch (error) {
+                console.error('خطأ في حفظ الأصناف:', error);
+            }
+        }
+        
+        function saveReviews() {
+            try {
+                localStorage.setItem('reviews', JSON.stringify(reviews));
+                console.log('تم حفظ التقييمات');
+            } catch (error) {
+                console.error('خطأ في حفظ التقييمات:', error);
+            }
+        }
+        
+        function saveTheme() {
+            try {
+                localStorage.setItem('theme', currentTheme);
+                console.log('تم حفظ الثيم');
+            } catch (error) {
+                console.error('خطأ في حفظ الثيم:', error);
+            }
+        }
+        
+        // دالة تحميل البيانات المحفوظة
+        function loadSavedData() {
+            try {
+                // تحميل معلومات المطعم
+                const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+                if (savedRestaurantInfo) {
+                    restaurantInfo = JSON.parse(savedRestaurantInfo);
+                    console.log('تم تحميل معلومات المطعم:', restaurantInfo);
+                }
+                
+                // تحميل الفئات والأصناف
+                const savedCategories = localStorage.getItem('menuCategories');
+                if (savedCategories) {
+                    categories = JSON.parse(savedCategories);
+                    console.log('تم تحميل الفئات:', categories);
+                }
+                
+                const savedItems = localStorage.getItem('menuItems');
+                if (savedItems) {
+                    menuItems = JSON.parse(savedItems);
+                    console.log('تم تحميل الأصناف:', menuItems);
+                }
+                
+                // تحميل التقييمات
+                const savedReviews = localStorage.getItem('reviews');
+                if (savedReviews) {
+                    reviews = JSON.parse(savedReviews);
+                    console.log('تم تحميل التقييمات:', reviews);
+                }
+                
+                // تحميل الثيم
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    currentTheme = savedTheme;
+                    document.body.classList.remove('dark-theme', 'light-theme');
+                    document.body.classList.add(currentTheme + '-theme');
+                    document.getElementById('themeToggle').checked = currentTheme === 'dark';
+                }
+                
+                console.log('تم تحميل البيانات بنجاح');
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+            }
+        }
+        
+        function loadAdminData() {
+            // تحديث واجهة الإدارة بالبيانات المحفوظة
+            document.getElementById('adminRestaurantName').value = restaurantInfo.name || '';
+            document.getElementById('adminRestaurantDescription').value = restaurantInfo.description || '';
+            
+            if (restaurantInfo.logo) {
+                const logoPreview = document.getElementById('adminLogoPreview');
+                logoPreview.innerHTML = `<img src="${restaurantInfo.logo}" alt="Logo">`;
+            }
+            
+            if (restaurantInfo.cover) {
+                const coverPreview = document.getElementById('adminCoverPreview');
+                coverPreview.innerHTML = `<img src="${restaurantInfo.cover}" alt="Cover">`;
+            }
+            
+            updateCategorySelect();
+            renderCategoriesAdmin();
+        }
+        
+        function updateMainMenu() {
+            // تحديث واجهة القائمة الرئيسية
+            const restaurantNameEl = document.getElementById('restaurantName');
+            if (restaurantNameEl && restaurantInfo.name) {
+                restaurantNameEl.textContent = restaurantInfo.name;
+            }
+            
+            const restaurantDescEl = document.getElementById('restaurantDescription');
+            if (restaurantDescEl && restaurantInfo.description) {
+                restaurantDescEl.textContent = restaurantInfo.description;
+            }
+            
+            // تحميل الشعار
+            if (restaurantInfo.logo) {
+                const logoEl = document.getElementById('restaurantLogo');
+                if (logoEl) {
+                    logoEl.innerHTML = `<img src="${restaurantInfo.logo}" alt="Logo">`;
+                }
+            }
+            
+            // تحميل صورة الغلاف
+            if (restaurantInfo.cover) {
+                const coverImg = document.getElementById('coverImage');
+                if (coverImg) {
+                    coverImg.src = restaurantInfo.cover;
+                    coverImg.style.display = 'block';
+                }
+            }
+            
+            // عرض الفئات والأصناف
+            displayMenu();
+        }
+        
+        // دالة عرض القائمة
+        function displayMenu() {
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            
+            if (!categories || categories.length === 0) {
+                categoriesContainer.innerHTML = '<p class="no-items">لم يتم إضافة أي أصناف بعد</p>';
+                return;
+            }
+            
+            categoriesContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                // التحقق من عدم إخفاء الفئة
+                if (category.hidden) return;
+                
+                // تصفية الأصناف الخاصة بهذه الفئة
+                const categoryItems = menuItems.filter(item => 
+                    item.categoryId === category.id && 
+                    !item.hidden
+                );
+                
+                if (categoryItems.length === 0) return;
+                
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                categoryCard.dataset.categoryId = category.id;
+                
+                // إنشاء رأس الفئة
+                const categoryHeader = document.createElement('div');
+                categoryHeader.className = 'category-header';
+                
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = category.name;
+                
+                const categoryIcon = document.createElement('div');
+                categoryIcon.className = 'category-icon';
+                categoryIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                
+                categoryHeader.appendChild(categoryTitle);
+                categoryHeader.appendChild(categoryIcon);
+                
+                categoryCard.appendChild(categoryHeader);
+                
+                // إضافة صورة الفئة إن وجدت
+                if (category.image) {
+                    const categoryImageDiv = document.createElement('div');
+                    categoryImageDiv.className = 'category-image';
+                    categoryImageDiv.innerHTML = `<img src="${category.image}" alt="${category.name}">`;
+                    categoryCard.appendChild(categoryImageDiv);
+                }
+                
+                // إنشاء حاوية الأصناف
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'items-container';
+                
+                categoryItems.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'menu-item';
+                    itemElement.style.setProperty('--delay', index);
+                    
+                    const itemHeader = document.createElement('div');
+                    itemHeader.className = 'item-header';
+                    
+                    const itemName = document.createElement('span');
+                    itemName.className = 'item-name';
+                    itemName.textContent = item.name;
+                    
+                    const itemPrice = document.createElement('span');
+                    itemPrice.className = 'item-price';
+                    itemPrice.textContent = `${item.price} ₪`;
+                    
+                    itemHeader.appendChild(itemName);
+                    itemHeader.appendChild(itemPrice);
+                    
+                    const itemDescription = document.createElement('p');
+                    itemDescription.className = 'item-description';
+                    itemDescription.textContent = item.description || '';
+                    
+                    itemElement.appendChild(itemHeader);
+                    itemElement.appendChild(itemDescription);
+                    
+                    itemsContainer.appendChild(itemElement);
+                });
+                
+                categoryCard.appendChild(itemsContainer);
+                categoriesContainer.appendChild(categoryCard);
+                
+                // إضافة حدث النقر على الفئة
+                categoryCard.addEventListener('click', function() {
+                    toggleCategory(this);
+                });
+                
+                // دعم اللمس للهواتف
+                categoryCard.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    toggleCategory(this);
+                });
+            });
+            
+            if (categoriesContainer.children.length === 0) {
+                categoriesContainer.innerHTML = '<p class="no-items">لم يتم إضافة أي أصناف بعد</p>';
+            }
+        }
+        
+        function toggleCategory(categoryCard) {
+            const categoryId = categoryCard.dataset.categoryId;
+            
+            // إذا كانت الفئة المختارة هي نفس الفئة النشطة، أغلقها
+            if (activeCategoryId === categoryId) {
+                categoryCard.classList.remove('active');
+                activeCategoryId = null;
+            } else {
+                // إغلاق الفئة النشطة السابقة
+                const activeCard = document.querySelector('.category-card.active');
+                if (activeCard) {
+                    activeCard.classList.remove('active');
+                }
+                
+                // فتح الفئة الجديدة
+                categoryCard.classList.add('active');
+                activeCategoryId = categoryId;
+            }
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            
+            if (type === 'error') {
+                notification.style.background = '#dc3545';
+            } else {
+                notification.style.background = 'var(--primary)';
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
